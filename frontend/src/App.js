@@ -17,7 +17,7 @@ function App() {
 
   const addTodo = async () => {
     if (!text) return;
-    await axios.post("http://localhost:5000/api/todos", { text });
+   axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", newTodo);
     setText("");
     fetchTodos();
   };
@@ -33,7 +33,7 @@ function App() {
   };
 
   const deleteTodo = async (id) => {
-    await axios.delete(`http://localhost:5000/api/todos/${id}`);
+   axios.delete(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
     fetchTodos();
   };
 
