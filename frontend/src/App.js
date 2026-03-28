@@ -11,7 +11,7 @@ function App() {
   }, []);
 
   const fetchTodos = async () => {
-    const res = await axios.get("http://localhost:5000/api/todos");
+    const res = await axios.get("https://mern-to-do-5h3k.onrender.com/api/todos");
     setTodos(res.data.map(todo => ({ ...todo, completed: false })));
   };
 
