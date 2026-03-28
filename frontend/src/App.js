@@ -10,12 +10,18 @@ function App() {
     fetchTodos();
   }, []);
 
-const fetchTodos = async () => {
+const addTodo = async () => {
+  if (!text.trim()) return;
+
   try {
-    const res = await axios.get("https://mern-to-do-5h3k.onrender.com/api/todos");
-    setTodos(res.data);
+    await axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", {
+      text: text
+    });
+
+    setText("");
+    fetchTodos();
   } catch (err) {
-    console.error("Error fetching todos:", err);
+    console.error("Error adding todo:", err);
   }
 };
   const addTodo = async () => {
