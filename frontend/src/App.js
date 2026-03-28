@@ -10,27 +10,39 @@ function App() {
     fetchTodos();
   }, []);
 
-  const fetchTodos = async () => {
+const fetchTodos = async () => {
+  try {
     const res = await axios.get("https://mern-to-do-5h3k.onrender.com/api/todos");
     setTodos(res.data);
-  };
-
+  } catch (err) {
+    console.error("Error fetching todos:", err);
+  }
+};
   const addTodo = async () => {
-    if (!text) return;
-   await axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", {
-  text: text
-});
-    setText("");
-    fetchTodos();
-  };
+  if (!text) return;
 
- const toggleComplete = async (id) => {
-  await axios.put(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
+  await axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", {
+    text: text
+  });
+
+  setText("");
   fetchTodos();
 };
- const deleteTodo = async (id) => {
-   await axios.delete(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
-   fetchTodos();
+ const toggleComplete = async (id) => {
+  try {
+    await axios.put(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
+    fetchTodos();
+  } catch (err) {
+    console.error("Error updating todo:", err);
+  }
+};
+const deleteTodo = async (id) => {
+  try {
+    await axios.delete(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
+    fetchTodos();
+  } catch (err) {
+    console.error("Error deleting todo:", err);
+  }
 };
   // ✅ RETURN MUST BE INSIDE App()
   return (
