@@ -12,31 +12,26 @@ function App() {
 
   const fetchTodos = async () => {
     const res = await axios.get("https://mern-to-do-5h3k.onrender.com/api/todos");
-    setTodos(res.data.map(todo => ({ ...todo, completed: false })));
+    setTodos(res.data);
   };
 
   const addTodo = async () => {
     if (!text) return;
-   axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", newTodo);
+   await axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", {
+  text: text
+});
     setText("");
     fetchTodos();
   };
 
-  const toggleComplete = (id) => {
-    setTodos(
-      todos.map(todo =>
-        todo._id === id
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      )
-    );
-  };
-
-  const deleteTodo = async (id) => {
-   axios.delete(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
-    fetchTodos();
-  };
-
+ const toggleComplete = async (id) => {
+  await axios.put(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
+  fetchTodos();
+};
+ const deleteTodo = async (id) => {
+   await axios.delete(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
+   fetchTodos();
+};
   // ✅ RETURN MUST BE INSIDE App()
   return (
     <div className="container">
