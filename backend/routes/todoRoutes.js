@@ -3,25 +3,27 @@ const Todo = require("../models/Todo");
 
 const router = express.Router();
 
-// Get all todos
+// GET
 router.get("/", async (req, res) => {
   const todos = await Todo.find();
   res.json(todos);
 });
 
-// Add todo
+// POST
 router.post("/", async (req, res) => {
   const newTodo = new Todo({ text: req.body.text });
   await newTodo.save();
   res.json(newTodo);
 });
 
-// Delete todo
+// DELETE
 router.delete("/:id", async (req, res) => {
   await Todo.findByIdAndDelete(req.params.id);
   res.json({ message: "Todo deleted" });
 });
-router.put("/api/todos/:id", async (req, res) => {
+
+// ✅ PUT (FINAL CORRECT)
+router.put("/:id", async (req, res) => {
   try {
     const todo = await Todo.findById(req.params.id);
 
@@ -29,9 +31,7 @@ router.put("/api/todos/:id", async (req, res) => {
       return res.status(404).json({ message: "Todo not found" });
     }
 
-    // toggle completed
     todo.completed = !todo.completed;
-
     await todo.save();
 
     res.json(todo);
