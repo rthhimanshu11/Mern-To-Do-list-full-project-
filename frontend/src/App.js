@@ -1,100 +1,166 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "./App.css";
+import {
+  getTodos,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+} from "./api";
 
 function App() {
-  const [text, setText] = useState("");
   const [todos, setTodos] = useState([]);
+  const [text, setText] = useState("");
+  const [editingId, setEditingId] = useState(null);
+
+  // Fetch all todos
+  const fetchTodos = async () => {
+    try {
+      const res = await getTodos();
+      setTodos(res.data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
+  };
 
   useEffect(() => {
     fetchTodos();
   }, []);
 
-const addTodo = async () => {
-  if (!text.trim()) return;
+  // Add or Update Todo
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    await axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", {
-      text: text
-    });
+    if (!text.trim()) return;
 
-    setText("");
-    fetchTodos();
-  } catch (err) {
-    console.error("Error adding todo:", err);
-  }
-};
-  const addTodo = async () => {
-  if (!text) return;
+    try {
+      if (editingId) {
+        await updateTodo(editingId, { text });
+        setEditingId(null);
+      } else {
+        await createTodo({ text });
+      }
+      setText("");
+      fetchTodos();
+    } catch (error) {
+      console.error("Error saving todo:", error);
+    }
+  };
 
-  await axios.post("https://mern-to-do-5h3k.onrender.com/api/todos", {
-    text: text
-  });
+  // Edit Todo
+  const handleEdit = (todo) => {
+    setText(todo.text);
+    setEditingId(todo._id);
+  };
 
-  setText("");
-  fetchTodos();
-};
- const toggleComplete = async (id) => {
-  try {
-    await axios.put(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
-    fetchTodos();
-  } catch (err) {
-    console.error("Error updating todo:", err);
-  }
-};
-const deleteTodo = async (id) => {
-  try {
-    await axios.delete(`https://mern-to-do-5h3k.onrender.com/api/todos/${id}`);
-    fetchTodos();
-  } catch (err) {
-    console.error("Error deleting todo:", err);
-  }
-};
-  // ✅ RETURN MUST BE INSIDE App()
+  // Delete Todo
+  const handleDelete = async (id) => {
+    try {
+      await deleteTodo(id);
+      fetchTodos();
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
   return (
-    <div className="container">
-      <h2>MERN To-Do List</h2>
+    <div style={styles.container}>
+      <h1 style={styles.heading}>MERN Todo App</h1>
 
-      <form
-  onSubmit={(e) => {
-    e.preventDefault();   // stops page refresh
-    addTodo();
-  }}
->
-  <input
-    type="text"
-    value={text}
-    onChange={(e) => setText(e.target.value)}
-    placeholder="Enter task"
-  />
-  <button type="submit">Add</button>
-</form>
+      {/* Form */}
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <input
+          type="text"
+          placeholder="Enter a todo..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          style={styles.input}
+        />
+        <button type="submit" style={styles.addButton}>
+          {editingId ? "Update" : "Add"}
+        </button>
+      </form>
 
-      <ul>
-        {todos.map(todo => (
-          <li
-  key={todo._id}
-  className={todo.completed ? "completed" : ""}
->
-  <span>{todo.text}</span>
-
-  <div className="right">
-  <input
-    type="checkbox"
-    checked={todo.completed}
-    onChange={() => toggleComplete(todo._id)}
-  />
-
-  {!todo.completed && (
-    <button onClick={() => deleteTodo(todo._id)}>❌</button>
-  )}
-</div>
-</li>
+      {/* Todo List */}
+      <ul style={styles.list}>
+        {todos.map((todo) => (
+          <li key={todo._id} style={styles.listItem}>
+            <span>{todo.text}</span>
+            <div>
+              <button
+                onClick={() => handleEdit(todo)}
+                style={styles.editButton}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(todo._id)}
+                style={styles.deleteButton}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
         ))}
       </ul>
     </div>
   );
 }
 
-// ✅ export AFTER function ends
+// Inline Styling
+const styles = {
+  container: {
+    maxWidth: "600px",
+    margin: "50px auto",
+    textAlign: "center",
+    fontFamily: "Arial, sans-serif",
+  },
+  heading: {
+    color: "#333",
+  },
+  form: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "20px",
+  },
+  input: {
+    padding: "10px",
+    width: "70%",
+    fontSize: "16px",
+  },
+  addButton: {
+    padding: "10px 20px",
+    backgroundColor: "#28a745",
+    color: "#fff",
+    border: "none",
+    cursor: "pointer",
+  },
+  list: {
+    listStyle: "none",
+    padding: 0,
+  },
+  listItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#f4f4f4",
+    padding: "10px",
+    marginBottom: "10px",
+    borderRadius: "5px",
+  },
+  editButton: {
+    marginRight: "10px",
+    padding: "5px 10px",
+    backgroundColor: "#ffc107",
+    border: "none",
+    cursor: "pointer",
+  },
+  deleteButton: {
+    padding: "5px 10px",
+    backgroundColor: "#dc3545",
+    color: "#fff",
+    border: "none",
+    cursor: "pointer",
+  },
+};
+
 export default App;
