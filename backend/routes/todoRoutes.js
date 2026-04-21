@@ -1,42 +1,49 @@
 const express = require("express");
+const router = express.Router();
 const Todo = require("../models/Todo");
 
-const router = express.Router();
-
-// GET
+// GET ALL
 router.get("/", async (req, res) => {
-  const todos = await Todo.find();
-  res.json(todos);
+  try {
+    const todos = await Todo.find();
+    res.json(todos);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// POST
+// CREATE
 router.post("/", async (req, res) => {
-  const newTodo = new Todo({ text: req.body.text });
-  await newTodo.save();
-  res.json(newTodo);
+  try {
+    const todo = new Todo({ text: req.body.text });
+    await todo.save();
+    res.json(todo);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// UPDATE TEXT
+router.put("/:id", async (req, res) => {
+  try {
+    const updated = await Todo.findByIdAndUpdate(
+      req.params.id,
+      { text: req.body.text },
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // DELETE
 router.delete("/:id", async (req, res) => {
-  await Todo.findByIdAndDelete(req.params.id);
-  res.json({ message: "Todo deleted" });
-});
-
-// ✅ PUT (FINAL CORRECT)
-router.put("/:id", async (req, res) => {
   try {
-    const todo = await Todo.findById(req.params.id);
-
-    if (!todo) {
-      return res.status(404).json({ message: "Todo not found" });
-    }
-
-    todo.completed = !todo.completed;
-    await todo.save();
-
-    res.json(todo);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    await Todo.findByIdAndDelete(req.params.id);
+    res.json({ msg: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
